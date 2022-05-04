@@ -49,6 +49,6 @@ jobs:
         dotnet pack -o . /p:Version=${{steps.version.outputs.version}} /p:repositoryUrl="${{env.packageUrl}}" --configuration Release  src/SurePrepApiClientSdk/SurePrepApiClientSdk.csproj
 
     - name: Publish nugets
-      run: dotnet nuget push *.nupkg --api-key ${{ secrets.GITHUB_TOKEN }}
+      run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGETORG_API_KEY}}
       env:
         RepositoryUrl: ${{env.packageUrl}}
