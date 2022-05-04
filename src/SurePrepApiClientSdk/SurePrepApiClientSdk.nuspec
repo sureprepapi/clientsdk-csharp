@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>1</version>
+    <title>SurePrep.API</title>
+    <authors>SurePrep LLC.</authors>
+    <owners>SurePrep LLC.</owners>
+    <licenseUrl>https://corp.sureprep.com/</licenseUrl>
+    <projectUrl>https://corp.sureprep.com/</projectUrl>
+    <iconUrl>https://corp.sureprep.com/</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>SurePrepAPI Client SDK</description>
+    <releaseNotes></releaseNotes>
+    <copyright>Copyright 2022</copyright>
+    <tags>SurePrep API SDK</tags>
+    <dependencies>
+    </dependencies>
+    <repository type="git" url="$repositoryUrl$" branch="$branch$" commit="$commit$" />
+  </metadata>
+</package>

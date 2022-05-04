@@ -1,0 +1,54 @@
+name: SurePrep API Client SDK
+
+on:
+  workflow_dispatch:
+
+env:
+  packageUrl: https://github.com/${{github.repository}}
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Create version string
+      id: version
+      shell: pwsh
+      run: |
+            $timestamp = $(Get-Date).ToString("yy.MMdd.HHmm.")
+            $version = $timestamp + "${{github.run_number}}"
+            Write-Output "::set-output name=version::$version"
+
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - uses: nuget/setup-nuget@v1
+      with:
+        nuget-version: '5.x'
+
+    - name: Install .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+        source-url: https://nuget.pkg.github.com/${{github.repository_owner}}/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Restore nugets
+      run: nuget restore SurePrepApiClientSdk.sln
+    
+    - name: Build the application
+      run: dotnet build SurePrepApiClientSdk.sln --configuration Release
+
+    - name: Create nugets
+      run: |
+        dotnet pack -o . /p:Version=${{steps.version.outputs.version}} /p:repositoryUrl="${{env.packageUrl}}" --configuration Release  src/SurePrepApiClientSdk/SurePrepApiClientSdk.csproj
+
+    - name: Publish nugets
+      run: dotnet nuget push *.nupkg --api-key ${{ secrets.GITHUB_TOKEN }}
+      env:
+        RepositoryUrl: ${{env.packageUrl}}
