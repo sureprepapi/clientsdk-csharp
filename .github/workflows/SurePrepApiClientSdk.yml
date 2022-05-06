@@ -63,12 +63,12 @@ jobs:
 
     - name: Publish nugets to GitHub
       run: dotnet nuget push *.nupkg --api-key ${{ secrets.GITHUB_TOKEN }}
-      if:  ${{github.event.inputs.deploy2github}}
+      if:  ${{ github.event.inputs.deploy2github && github.event.inputs.deploy2github != 'false' }}
       env:
         RepositoryUrl: ${{env.packageUrl}}
 
     - name: Publish nugets to NuGet.org
       run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGETORG_API_KEY}}
-      if:  ${{github.event.inputs.deploy2nugetorg}}
+      if:  ${{ github.event.inputs.deploy2nugetorg && github.event.inputs.deploy2nugetorg != 'false' }}
       env:
         RepositoryUrl: ${{env.packageUrl}}
