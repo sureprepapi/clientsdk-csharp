@@ -2,6 +2,17 @@ name: SurePrep API Client SDK
 
 on:
   workflow_dispatch:
+    inputs:
+      deploy2github:
+        type: boolean
+        description: 'Deploy to GitHub'     
+        required: true
+        default: true
+      deploy2nugetorg:
+        type: boolean
+        description: 'Deploy to NuGet.org'     
+        required: true
+        default: false
 
 env:
   packageUrl: https://github.com/${{github.repository}}
@@ -20,6 +31,8 @@ jobs:
             $timestamp = $(Get-Date).ToString("yy.MMdd.HHmm.")
             $version = $timestamp + "${{github.run_number}}"
             Write-Output "::set-output name=version::$version"
+            Write-Output "deploy2github=${{github.event.inputs.deploy2github}}"
+            Write-Output "deploy2nugetorg=${{github.event.inputs.deploy2nugetorg}}"
 
     - name: Checkout
       uses: actions/checkout@v2
@@ -46,9 +59,16 @@ jobs:
 
     - name: Create nugets
       run: |
-        dotnet pack -o . /p:Version=${{steps.version.outputs.version}} /p:repositoryUrl="${{env.packageUrl}}" --configuration Release  src/SurePrepApiClientSdk/SurePrepApiClientSdk.csproj
+        dotnet pack -o . /p:Version=${{steps.version.outputs.version}} /p:repositoryUrl="${{env.packageUrl}}" /p:authors="SurePrep LLC." /p:description="SurePrepAPI Client SDK" --configuration Release  src/SurePrepApiClientSdk/SurePrep.API.ClientSdk.csproj
 
-    - name: Publish nugets
+    - name: Publish nugets to GitHub
+      run: dotnet nuget push *.nupkg --api-key ${{ secrets.GITHUB_TOKEN }}
+      if:  ${{github.event.inputs.deploy2github}}
+      env:
+        RepositoryUrl: ${{env.packageUrl}}
+
+    - name: Publish nugets to NuGet.org
       run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGETORG_API_KEY}}
+      if:  ${{github.event.inputs.deploy2nugetorg}}
       env:
         RepositoryUrl: ${{env.packageUrl}}
